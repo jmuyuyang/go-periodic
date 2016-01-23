@@ -24,7 +24,7 @@ func (w *Worker) Connect(addr string) error {
 	if err != nil {
 		return err
 	}
-	w.bc = NewBaseClient(conn, protocol.TYPECLIENT)
+	w.bc = NewBaseClient(conn, protocol.TYPEWORKER)
 	go w.bc.ReceiveLoop()
 	return nil
 }
