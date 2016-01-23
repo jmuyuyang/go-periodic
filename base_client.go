@@ -61,7 +61,7 @@ func (c *BaseClient) ReceiveLoop() {
 			continue
 		}
 		agent.FeedCommand(cmd, data)
-		defer c.locker.Unlock()
+		c.locker.Unlock()
 	}
 }
 
