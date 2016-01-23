@@ -51,7 +51,7 @@ func (a *Agent) Send(cmd protocol.Command, data []byte) error {
 func (a *Agent) Receive() (cmd protocol.Command, data []byte, err error) {
 	for {
 		a.locker.Lock()
-		if !a.recived || a.err != nil {
+		if a.recived || a.err != nil {
 			a.locker.Unlock()
 			break
 		}
