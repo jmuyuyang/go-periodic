@@ -15,13 +15,19 @@ type Job struct {
 }
 
 // NewJob create a job
-func NewJob(bc *BaseClient, data []byte) (*Job, error) {
-	j := new(Job)
+func NewJob(bc *BaseClient, data []byte) (job Job, err error) {
+	var raw driver.Job
 	parts := bytes.SplitN(data, protocol.NullChar, 2)
-	job, err := driver.NewJob(parts[0])
-	j.Handle = parts[1]
-	j.Raw = job
-	return j, err
+	raw, err = driver.NewJob(parts[1])
+	if err != nil {
+		return
+	}
+	job = Job{
+		bc:     bc,
+		Raw:    raw,
+		Handle: parts[0],
+	}
+	return
 }
 
 // Done tell periodic server the job done.

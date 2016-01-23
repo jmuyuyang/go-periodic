@@ -42,7 +42,7 @@ func (w *Worker) Ping() bool {
 }
 
 // GrabJob from periodic server.
-func (w *Worker) GrabJob() (j *Job, e error) {
+func (w *Worker) GrabJob() (j Job, e error) {
 	agent := w.bc.NewAgent()
 	defer w.bc.RemoveAgent(agent.ID)
 	agent.Send(protocol.GRABJOB, nil)
