@@ -20,6 +20,7 @@ type BaseClient struct {
 // NewBaseClient create a base client.
 func NewBaseClient(conn net.Conn, clientType protocol.ClientType) *BaseClient {
 	c := new(BaseClient)
+	c.agents = make(map[string]*Agent)
 	c.alive = true
 	c.locker = new(sync.RWMutex)
 	c.conn = protocol.NewClientConn(conn)
