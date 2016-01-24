@@ -3,18 +3,24 @@ package periodic
 import (
 	"fmt"
 	"github.com/Lupino/periodic/protocol"
+	"log"
 	"net"
 	"strings"
 )
 
 // Worker defined a client.
 type Worker struct {
-	bc *BaseClient
+	bc    *BaseClient
+	tasks map[string]func(Job)
+	alive bool
 }
 
 // NewWorker create a client.
 func NewWorker() *Worker {
-	return new(Worker)
+	w := new(Worker)
+	w.tasks = make(map[string]func(Job))
+	w.alive = true
+	return w
 }
 
 // Connect a periodic server.
@@ -56,22 +62,46 @@ func (w *Worker) GrabJob() (j Job, e error) {
 }
 
 // AddFunc to periodic server.
-func (w *Worker) AddFunc(Func string) error {
+func (w *Worker) AddFunc(funcName string, task func(Job)) error {
 	agent := w.bc.NewAgent()
 	defer w.bc.RemoveAgent(agent.ID)
-	agent.Send(protocol.CANDO, []byte(Func))
+	agent.Send(protocol.CANDO, []byte(funcName))
+	w.tasks[funcName] = task
 	return nil
 }
 
 // RemoveFunc to periodic server.
-func (w *Worker) RemoveFunc(Func string) error {
+func (w *Worker) RemoveFunc(funcName string) error {
 	agent := w.bc.NewAgent()
 	defer w.bc.RemoveAgent(agent.ID)
-	agent.Send(protocol.CANTDO, []byte(Func))
+	agent.Send(protocol.CANTDO, []byte(funcName))
+	delete(w.tasks, funcName)
 	return nil
+}
+
+// Work do the task.
+func (w *Worker) Work() {
+	var err error
+	var job Job
+	var task func(Job)
+	var ok bool
+	for w.alive {
+		job, err = w.GrabJob()
+		if err != nil {
+			log.Printf("GrabJob Error: %s\n", err)
+			continue
+		}
+		task, ok = w.tasks[job.FuncName]
+		if !ok {
+			w.RemoveFunc(job.FuncName)
+			continue
+		}
+		task(job)
+	}
 }
 
 // Close the client.
 func (w *Worker) Close() {
+	w.alive = false
 	w.bc.Close()
 }

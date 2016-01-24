@@ -9,9 +9,12 @@ import (
 
 // Job defined a job type.
 type Job struct {
-	bc     *BaseClient
-	Raw    driver.Job
-	Handle []byte
+	bc       *BaseClient
+	Raw      driver.Job
+	FuncName string
+	Name     string
+	Args     string
+	Handle   []byte
 }
 
 // NewJob create a job
@@ -23,9 +26,12 @@ func NewJob(bc *BaseClient, data []byte) (job Job, err error) {
 		return
 	}
 	job = Job{
-		bc:     bc,
-		Raw:    raw,
-		Handle: parts[0],
+		bc:       bc,
+		Raw:      raw,
+		FuncName: raw.Func,
+		Name:     raw.Name,
+		Args:     raw.Args,
+		Handle:   parts[0],
 	}
 	return
 }
