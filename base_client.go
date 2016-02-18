@@ -57,7 +57,8 @@ func (c *BaseClient) ReceiveLoop() {
 		c.locker.Lock()
 		agent, ok := c.agents[string(agentID)]
 		if !ok {
-			log.Printf("Agent: %s not found.", agentID)
+			log.Printf("Agent: %s not found.\n", agentID)
+			c.locker.Unlock()
 			continue
 		}
 		agent.FeedCommand(cmd, data)
