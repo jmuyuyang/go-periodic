@@ -2,7 +2,7 @@ package periodic
 
 import (
 	"github.com/Lupino/periodic/protocol"
-	"github.com/satori/go.uuid"
+	"github.com/ventu-io/go-shortid"
 	"io"
 	"log"
 	"net"
@@ -35,13 +35,16 @@ func (c *BaseClient) RemoveAgent(agentID []byte) {
 	delete(c.agents, string(agentID))
 }
 
-// NewAgent create a new agent with an uuid
+// NewAgent create a new agent with an shortid
 func (c *BaseClient) NewAgent() *Agent {
 	c.locker.Lock()
 	defer c.locker.Unlock()
-	agentID := uuid.NewV4().Bytes()
-	agent := NewAgent(c.conn, agentID)
-	c.agents[string(agentID)] = agent
+	agentID, err := shortid.Generate()
+	if err != nil {
+		log.Fatal(err)
+	}
+	agent := NewAgent(c.conn, []byte(agentID))
+	c.agents[agentID] = agent
 	return agent
 }
 
