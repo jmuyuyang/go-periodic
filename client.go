@@ -8,6 +8,7 @@ import (
 	"io"
 	"net"
 	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -46,9 +47,29 @@ func (c *Client) Ping() bool {
 }
 
 // SubmitJob to periodic server.
-func (c *Client) SubmitJob(job driver.Job) error {
+//  opts = map[string]string{
+//    "schedat": schedat,
+//    "args": args,
+//    "timeout": timeout,
+//  }
+func (c *Client) SubmitJob(funcName, name string, opts map[string]string) error {
 	agent := c.bc.NewAgent()
 	defer c.bc.RemoveAgent(agent.ID)
+	job := driver.Job{
+		Func: funcName,
+		Name: name,
+	}
+	if args, ok := opts["args"]; ok {
+		job.Args = args
+	}
+	if schedat, ok := opts["schedat"]; ok {
+		i64, _ := strconv.ParseInt(schedat, 10, 64)
+		job.SchedAt = i64
+	}
+	if timeout, ok := opts["timeout"]; ok {
+		i64, _ := strconv.ParseInt(timeout, 10, 64)
+		job.Timeout = i64
+	}
 	agent.Send(protocol.SUBMITJOB, job.Bytes())
 	ret, data, _ := agent.Receive()
 	if ret == protocol.SUCCESS {
@@ -91,9 +112,13 @@ func (c *Client) DropFunc(Func string) error {
 }
 
 // RemoveJob to periodic server.
-func (c *Client) RemoveJob(job driver.Job) error {
+func (c *Client) RemoveJob(funcName, name string) error {
 	agent := c.bc.NewAgent()
 	defer c.bc.RemoveAgent(agent.ID)
+	job := driver.Job{
+		Func: funcName,
+		Name: name,
+	}
 	agent.Send(protocol.REMOVEJOB, job.Bytes())
 	ret, data, _ := agent.Receive()
 	if ret == protocol.SUCCESS {
