@@ -54,7 +54,7 @@ func (j *Job) Fail() error {
 
 // SchedLater tell periodic server to sched job later on delay.
 // SchedLater(delay int)
-// SchedLater(delay, counter int)
+// SchedLater(delay, counter int) sched with a incr the counter
 func (j *Job) SchedLater(opts ...int) error {
 	delay := opts[0]
 	agent := j.bc.NewAgent()
