@@ -53,13 +53,20 @@ func (j *Job) Fail() error {
 }
 
 // SchedLater tell periodic server to sched job later on delay.
-func (j *Job) SchedLater(delay int) error {
+// SchedLater(delay int)
+// SchedLater(delay, counter int)
+func (j *Job) SchedLater(opts ...int) error {
+	delay := opts[0]
 	agent := j.bc.NewAgent()
 	defer j.bc.RemoveAgent(agent.ID)
 	buf := bytes.NewBuffer(nil)
 	buf.Write(j.Handle)
 	buf.Write(protocol.NullChar)
 	buf.WriteString(strconv.Itoa(delay))
+	if len(opts) == 2 {
+		buf.Write(protocol.NullChar)
+		buf.WriteString(strconv.Itoa(opts[1]))
+	}
 	agent.Send(protocol.SCHEDLATER, buf.Bytes())
 	return nil
 }
