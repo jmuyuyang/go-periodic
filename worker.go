@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 	"strings"
+	"sync"
 )
 
 // Worker defined a client.
@@ -13,6 +14,7 @@ type Worker struct {
 	bc    *BaseClient
 	tasks map[string]func(Job)
 	alive bool
+	wg    sync.WaitGroup
 }
 
 // NewWorker create a client.
@@ -20,6 +22,7 @@ func NewWorker() *Worker {
 	w := new(Worker)
 	w.tasks = make(map[string]func(Job))
 	w.alive = true
+	w.wg = sync.WaitGroup{}
 	return w
 }
 
@@ -80,28 +83,41 @@ func (w *Worker) RemoveFunc(funcName string) error {
 }
 
 // Work do the task.
-func (w *Worker) Work() {
+func (w *Worker) Work(size int) {
 	var err error
 	var job Job
 	var task func(Job)
 	var ok bool
+	if size < 1 {
+		size = 1
+	}
+	var sem = make(chan struct{}, size)
 	for w.alive {
+		sem <- struct{}{}
 		job, err = w.GrabJob()
 		if err != nil {
 			log.Printf("GrabJob Error: %s\n", err)
+			<-sem
 			continue
 		}
 		task, ok = w.tasks[job.FuncName]
 		if !ok {
 			w.RemoveFunc(job.FuncName)
+			<-sem
 			continue
 		}
-		task(job)
+		w.wg.Add(1)
+		go func() {
+			defer w.wg.Done()
+			task(job)
+			<-sem
+		}()
 	}
 }
 
 // Close the client.
 func (w *Worker) Close() {
 	w.alive = false
+	w.wg.Wait()
 	w.bc.Close()
 }
