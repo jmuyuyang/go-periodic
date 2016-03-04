@@ -15,14 +15,16 @@ type Worker struct {
 	tasks map[string]func(Job)
 	alive bool
 	wg    sync.WaitGroup
+	size  int
 }
 
 // NewWorker create a client.
-func NewWorker() *Worker {
+func NewWorker(size int) *Worker {
 	w := new(Worker)
 	w.tasks = make(map[string]func(Job))
 	w.alive = true
 	w.wg = sync.WaitGroup{}
+	w.size = size
 	return w
 }
 
@@ -83,15 +85,15 @@ func (w *Worker) RemoveFunc(funcName string) error {
 }
 
 // Work do the task.
-func (w *Worker) Work(size int) {
+func (w *Worker) Work() {
 	var err error
 	var job Job
 	var task func(Job)
 	var ok bool
-	if size < 1 {
-		size = 1
+	if w.size < 1 {
+		w.size = 1
 	}
-	var sem = make(chan struct{}, size)
+	var sem = make(chan struct{}, w.size)
 	for w.alive {
 		sem <- struct{}{}
 		job, err = w.GrabJob()
