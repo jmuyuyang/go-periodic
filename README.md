@@ -11,9 +11,9 @@ Usage
 worker
 ```go
 import "github.com/Lupino/go-periodic"
-    
+
 var periodicServer = "unix:///tmp/periodic.sock"
-var worker = periodic.Worker()
+var worker = periodic.NewWorker()
 worker.Connect(periodicServer)
 
 func handle(job periodic.Job) {
@@ -31,9 +31,9 @@ client
 
 ```go
 import "github.com/Lupino/go-periodic"
-    
+
 var periodicServer = "unix:///tmp/periodic.sock"
-var client = periodic.Client()
+var client = periodic.NewClient()
 client.Connect(periodicServer)
 client.SubmitJob(...)
 ```
