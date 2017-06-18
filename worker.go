@@ -2,11 +2,12 @@ package periodic
 
 import (
 	"fmt"
-	"github.com/Lupino/periodic/protocol"
 	"log"
 	"net"
 	"strings"
 	"sync"
+
+	"github.com/jmuyuyang/periodic/protocol"
 )
 
 // Worker defined a client.

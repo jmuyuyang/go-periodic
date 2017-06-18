@@ -2,8 +2,9 @@ package periodic
 
 import (
 	"bytes"
-	"github.com/Lupino/periodic/protocol"
 	"sync"
+
+	"github.com/jmuyuyang/periodic/protocol"
 )
 
 // Agent for client.

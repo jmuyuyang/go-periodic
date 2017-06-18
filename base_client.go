@@ -1,12 +1,13 @@
 package periodic
 
 import (
-	"github.com/Lupino/periodic/protocol"
-	"github.com/ventu-io/go-shortid"
 	"io"
 	"log"
 	"net"
 	"sync"
+
+	"github.com/jmuyuyang/periodic/protocol"
+	"github.com/ventu-io/go-shortid"
 )
 
 // BaseClient defined base client.

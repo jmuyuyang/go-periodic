@@ -2,9 +2,11 @@ package periodic
 
 import (
 	"bytes"
-	"github.com/Lupino/periodic/driver"
-	"github.com/Lupino/periodic/protocol"
+	"encoding/json"
 	"strconv"
+
+	"github.com/jmuyuyang/periodic/driver"
+	"github.com/jmuyuyang/periodic/protocol"
 )
 
 // Job defined a job type.
@@ -21,7 +23,7 @@ type Job struct {
 func NewJob(bc *BaseClient, data []byte) (job Job, err error) {
 	var raw driver.Job
 	parts := bytes.SplitN(data, protocol.NullChar, 2)
-	raw, err = driver.NewJob(parts[1])
+	err = json.Unmarshal(parts[1], &raw)
 	if err != nil {
 		return
 	}

@@ -3,13 +3,14 @@ package periodic
 import (
 	"bytes"
 	"fmt"
-	"github.com/Lupino/periodic/driver"
-	"github.com/Lupino/periodic/protocol"
 	"io"
 	"net"
 	"sort"
 	"strconv"
 	"strings"
+
+	"github.com/jmuyuyang/periodic/driver"
+	"github.com/jmuyuyang/periodic/protocol"
 )
 
 // Client defined a client.
@@ -69,6 +70,9 @@ func (c *Client) SubmitJob(funcName, name string, opts map[string]string) error 
 	if timeout, ok := opts["timeout"]; ok {
 		i64, _ := strconv.ParseInt(timeout, 10, 64)
 		job.Timeout = i64
+	}
+	if period, ok := opts["period"]; ok {
+		job.Period = period
 	}
 	agent.Send(protocol.SUBMITJOB, job.Bytes())
 	ret, data, _ := agent.Receive()
