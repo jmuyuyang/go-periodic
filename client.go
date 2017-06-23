@@ -74,6 +74,14 @@ func (c *Client) SubmitJob(funcName, name string, opts map[string]string) error 
 	if period, ok := opts["period"]; ok {
 		job.Period = period
 	}
+	if failRetry, ok := opts["fail_retry"]; ok {
+		i32, _ := strconv.Atoi(failRetry)
+		job.FailRetry = i32
+	}
+	if retention, ok := opts["retention"]; ok {
+		i64, _ := strconv.ParseInt(retention, 10, 64)
+		job.Retention = i64
+	}
 	agent.Send(protocol.SUBMITJOB, job.Bytes())
 	ret, data, _ := agent.Receive()
 	if ret == protocol.SUCCESS {
